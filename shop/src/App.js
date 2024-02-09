@@ -2,12 +2,15 @@ import React from 'react';
 import Header from './Components/Header'
 import Footer from './Components/Footer'
 import Items from './Components/Items'
+import Categories from './Components/Categories'
+import ShowItem from './Components/ShowItem';
 
 class App extends React.Component {
 
     constructor(props) {
         super(props)
         this.state = {
+            orders: [],
             items: [
                 {
                     id: 1,
@@ -49,18 +52,56 @@ class App extends React.Component {
                     category: 'lights',
                     price: '27.99'
                 }
-            ]
+            ],
+            currentCategory: "all",
+            showItem: false,
+            fullItem: {}
         }
+        this.addToOrder = this.addToOrder.bind(this)
+        this.deleteOrder = this.deleteOrder.bind(this)
+        this.chooseCategory = this.chooseCategory.bind(this)
+        this.onShowItem = this.onShowItem.bind(this)
     }
 
     render() {
         return (
             <div className='wrapper'>
-                <Header />
-                <Items items={this.state.items} />
+                <Header orders={this.state.orders} onDelete={this.deleteOrder} />
+                <Categories chooseCategory={this.chooseCategory} />
+                <Items onShowItem={this.onShowItem} items={this.state.items} onAdd={this.addToOrder} currentCategory={this.state.currentCategory} />
+
+                {this.state.showItem && <ShowItem onShowItem={this.onShowItem} onAdd={this.addToOrder} item={this.state.fullItem} />}
+
                 <Footer />
             </div>
         );
+    }
+
+    onShowItem(item) {
+        this.setState({ fullItem: item })
+        this.setState({ showItem: !this.state.showItem })
+    }
+
+    chooseCategory(category) {
+        this.setState({ currentCategory: category })
+    }
+
+    deleteOrder(id) {
+        this.setState({ orders: this.state.orders.filter((el) => el.id !== id) })
+    }
+
+    addToOrder(item) {
+        let isInArray = false
+        this.state.orders.forEach(el => {
+            if (el.id === item.id) {
+                isInArray = true
+            }
+        })
+
+        if (!isInArray) {
+            this.setState({ orders: [...this.state.orders, item] })
+        }
+
     }
 }
 
